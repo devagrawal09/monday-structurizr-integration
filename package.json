@@ -1,7 +1,7 @@
 {
-  "name": "monday-integration-quickstart-app",
-  "version": "0.0.1",
-  "license": "UNLICENSED",
+  "name": "monday-structurizr-integration",
+  "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
     "start": "npm run stop && concurrently \"npm run server\" \"npm run expose\"",
     "server": "nodemon ./src/app.js",
@@ -21,11 +21,9 @@
     "dotenv": "^5.0.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "monday-sdk-js": "0.0.12",
-    "mysql2": "^2.1.0",
+    "mongoose": "^5.10.15",
     "proxyquire": "^2.0.1",
-    "querystring": "^0.2.0",
-    "sequelize": "^5.21.5"
+    "querystring": "^0.2.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
@@ -41,5 +39,15 @@
     "sequelize-cli": "^5.5.1",
     "sinon": "^7.4.2",
     "sqlite3": "^4.1.1"
-  }
+  },
+  "author": {
+    "name": "Dev Agrawal",
+    "email": "agrawadv@mail.uc.edu"
+  },
+  "contributors": [
+    {
+      "name": "Anmol Gupta",
+      "email": "gupta.28@iitj.ac.in"
+    }
+  ]
 }
