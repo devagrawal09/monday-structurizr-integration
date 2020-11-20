@@ -218,3 +218,5 @@ vault/policies
 vault/tmp
 
 .env
+board.json
+data.json
