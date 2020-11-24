@@ -3,29 +3,12 @@ import * as fs from 'fs';
 import { Router } from 'express';
 import axios from 'axios';
 
-import { Board } from './board';
-import { IntermediateBoard } from './intermediate';
+import { Board } from '../interfaces/board';
+import { boardToIntermediate } from '../transformers/board-to-intermediate';
+import { mondayToStructurizr } from '../transformers/monday-to-structurizr';
+import { pushWorkspace } from '../structurizr/pushWorkspace';
 
 export const testRouter = Router();
-
-const transformer = (board: Board) => {
-  const intermediaryBoard: IntermediateBoard = {
-    description: board.description,
-    groups: board.groups
-  };
-  board.items.forEach(item => {
-    const group = intermediaryBoard.groups.find(group => group.id === item.group.id);
-    
-    if(!group) { return; }
-    
-    if(group.items) {
-      group.items.push(item);
-    } else {
-      group.items = [item];
-    }
-  });
-  return intermediaryBoard;
-}
 
 testRouter.post('/moday/testaction', async (req, res) => {
   try {
@@ -51,15 +34,26 @@ testRouter.post('/moday/testaction', async (req, res) => {
                 id
                 name
                 group { id }
+                column_values {
+                  id
+                  value
+                  title
+                }
               }
             }
           }
         `
       }
     });
-    const data: { data : { boards: Board[] } } = response.data;
-    await util.promisify(fs.writeFile)('data.json', JSON.stringify(data.data, null, 2));
-    await util.promisify(fs.writeFile)('board.json', JSON.stringify({ board: transformer(data.data.boards[0])}, null, 2));
+
+    const { data: { boards: [ board ] } }: { data : { boards: Board[] } } = response.data;
+    const intermediate = boardToIntermediate(board);
+
+    await util.promisify(fs.writeFile)('board.json', JSON.stringify({ board, intermediate }, null, 2));
+
+    const workspace = mondayToStructurizr(intermediate);
+    await pushWorkspace(workspace);
+
     console.log(`Done`);
   } finally {
     res.sendStatus(201);

@@ -13,4 +13,15 @@ export interface Item {
   id: string
   name: string
   group: { id: string }
+  column_values: Column[]
+}
+
+export interface Column {
+  id: string
+  value: string
+  title: "Description" | "Stack" | "Uses"
+}
+
+export interface LinkedPulses {
+  linkedPulseIds: Array<{ linkedPulseId: number }>
 }

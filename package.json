@@ -3,18 +3,19 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "start": "npm run stop && concurrently \"npm run server\" \"npm run expose\"",
-    "server": "npm run compile && nodemon ./dist/app.js",
-    "server-with-debugger": "npm run compile && nodemon --delay 100ms --exec 'fuser -k 9228/tcp; node --inspect=0.0.0.0:9228 ./src/dist.js'",
+    "start": "npm run stop && concurrently \"nodemon\" \"npm run expose\"",
+    "server": "npm run compile && node ./dist/app.js",
     "expose": "ngrok http 8302",
-    "stop": "kill-port 8302 && kill-port 4049 && kill-port 4040",
+    "stop": "kill-port 8302 && kill-port 404 9 && kill-port 4040",
     "compile": "tsc"
   },
   "nodemonConfig": {
     "watch": [
       ".env",
       "src/"
-    ]
+    ],
+    "exec": "npm run server",
+    "ext": "ts"
   },
   "dependencies": {
     "axios": "^0.21.0",
@@ -24,7 +25,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.15",
     "proxyquire": "^2.0.1",
-    "querystring": "^0.2.0"
+    "querystring": "^0.2.0",
+    "structurizr-typescript": "^1.0.8"
   },
   "devDependencies": {
     "@types/express": "^4.17.9",
