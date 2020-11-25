@@ -19,9 +19,13 @@ export interface Item {
 export interface Column {
   id: string
   value: string
-  title: "Description" | "Stack" | "Uses" | "Components" | "Users"
+  title: "Description" | "Stack" | "Uses" | "Components" | "Persons"
 }
 
 export interface LinkedPulses {
   linkedPulseIds: Array<{ linkedPulseId: number }>
+}
+
+export interface Tags {
+  tag_ids: Array<number>
 }
