@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Board, LinkedPulses, Item, } from "../interfaces/board";
+import { Board, LinkedPulses, Item, Tags } from "../interfaces/board";
 import { IntermediateBoard, IntermediateItem, ItemDetails } from "../interfaces/intermediate";
 
 const fetchSubitems = async (ids: string): Promise<ItemDetails[]> => {
@@ -60,6 +60,11 @@ export const boardToIntermediate = async (board: Board) => {
     const subitemsIdsArr: LinkedPulses = subitemsStr ? JSON.parse(subitemsStr): { linkedPulseIds: [] };
     const subitemsIdsStr = subitemsIdsArr.linkedPulseIds.map(item => item.linkedPulseId).join(` `);
     const subitems = subitemsIdsStr ? await fetchSubitems(subitemsIdsStr): [];
+
+    const personsStr = item.column_values.find(({ title }) => title == 'Persons')?.value;
+    const personsIdsArr: Tags = personsStr ? JSON.parse(personsStr): { tag_ids: [] };
+    const personsIdsStr = personsIdsArr.tag_ids.join(` `);
+    const person = personsIdsStr ? await fetchSubitems(personsIdsStr): [];
 
     const intermediaryItem: IntermediateItem = {
       ...itemToIntermediate(item),

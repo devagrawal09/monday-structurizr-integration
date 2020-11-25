@@ -25,3 +25,7 @@ export interface Column {
 export interface LinkedPulses {
   linkedPulseIds: Array<{ linkedPulseId: number }>
 }
+
+export interface Tags {
+  tag_ids: Array<number>
+}
