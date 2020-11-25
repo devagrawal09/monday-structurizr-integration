@@ -19,7 +19,7 @@ export interface Item {
 export interface Column {
   id: string
   value: string
-  title: "Description" | "Stack" | "Uses"
+  title: "Description" | "Stack" | "Uses" | "Components" | "Users"
 }
 
 export interface LinkedPulses {

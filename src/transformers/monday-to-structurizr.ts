@@ -7,7 +7,7 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
   board.groups?.forEach(group => {
     const system = workspace.model.addSoftwareSystem(group.title, `sample desc`)!;
 
-    workspace.views.createSystemContextView(
+    const view = workspace.views.createSystemContextView(
       system,
       `${group.title}-context`,
       'The system context view'
@@ -26,16 +26,18 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
     items?.forEach(({ item, container }) => {
       item.uses.forEach(linkedItem => {
         const linked = items.find(({ item: { id } }) => id === `${linkedItem}`);
-        linked && console.log(`${item.name} uses ${linked?.item.name}`);
         linked && container.uses(linked.container, 'Uses');
       });
     });
 
-    workspace.views.createContainerView(
+    const containerView = workspace.views.createContainerView(
       system,
       `${group.title}-containers`,
       'Container view'
-    ).addAllContainers();
+    );
+
+    containerView.addAllContainers();
+    containerView.setAutomaticLayout(true);
   });
 
   return workspace;

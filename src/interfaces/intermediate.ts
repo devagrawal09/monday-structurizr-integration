@@ -7,6 +7,8 @@ export interface IntermediateBoard {
 
     items?: IntermediateItem[]
   }>
+
+  users?: Array<User>
 }
 
 export interface IntermediateItem {
@@ -21,4 +23,8 @@ export interface IntermediateItem {
     id: string
     name: string
   }>
+}
+
+export interface User {
+
 }

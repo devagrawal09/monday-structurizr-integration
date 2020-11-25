@@ -47,7 +47,7 @@ testRouter.post('/moday/testaction', async (req, res) => {
     });
 
     const { data: { boards: [ board ] } }: { data : { boards: Board[] } } = response.data;
-    const intermediate = boardToIntermediate(board);
+    const intermediate = await boardToIntermediate(board);
 
     await util.promisify(fs.writeFile)('board.json', JSON.stringify({ board, intermediate }, null, 2));
 
