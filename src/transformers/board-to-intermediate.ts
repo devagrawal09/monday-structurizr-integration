@@ -1,6 +1,28 @@
 import axios from 'axios';
 import { Board, LinkedPulses, Item, Tags } from "../interfaces/board";
-import { IntermediateBoard, IntermediateItem, ItemDetails } from "../interfaces/intermediate";
+import { IntermediateBoard, IntermediateItem, ItemDetails, Person } from "../interfaces/intermediate";
+
+const fetchPersons = async (ids: string): Promise<Array<Person>> => {
+  const response = await axios({
+    url: `https://api.monday.com/v2`,
+    method: `POST`,
+    headers: {
+      Authorization: process.env.API_TOKEN
+    },
+    data: {
+      query: `
+        query {
+          tags(ids: [${ids}]) {
+            id
+            name
+          }
+        }
+      `
+    }
+  });
+
+  return response.data?.data?.tags;
+}
 
 const fetchSubitems = async (ids: string): Promise<ItemDetails[]> => {
   const response = await axios({
@@ -29,19 +51,25 @@ const fetchSubitems = async (ids: string): Promise<ItemDetails[]> => {
 
   const items: Item[] = response.data?.data?.items;
 
-  return items.map(itemToIntermediate);
+  return Promise.all(items.map(itemToIntermediate));
 }
 
-const itemToIntermediate = (item: Item) : ItemDetails => {
+const itemToIntermediate = async (item: Item): Promise<ItemDetails> => {
   const usesStr = item.column_values.find(({ title }) => title == 'Uses')?.value;
   const uses: LinkedPulses = usesStr ? JSON.parse(usesStr): { linkedPulseIds: [] };
+
+  const personsStr = item.column_values.find(({ title }) => title == 'Persons')?.value;
+  const personsIdsArr: Tags = personsStr ? JSON.parse(personsStr): { tag_ids: [] };
+  const personsIdsStr = personsIdsArr.tag_ids.join(` `);
+  const persons = personsIdsStr ? await fetchPersons(personsIdsStr): [];
 
   return {
     id: item.id,
     name: item.name,
     description: item.column_values.find(({ title }) => title == 'Description')?.value || undefined,
     stack: item.column_values.find(({ title }) => title == 'Stack')?.value || undefined,
-    uses: uses.linkedPulseIds.map(lp => lp.linkedPulseId)
+    uses: uses.linkedPulseIds?.map(lp => lp.linkedPulseId) || [],
+    persons
   }
 }
 
@@ -61,13 +89,8 @@ export const boardToIntermediate = async (board: Board) => {
     const subitemsIdsStr = subitemsIdsArr.linkedPulseIds.map(item => item.linkedPulseId).join(` `);
     const subitems = subitemsIdsStr ? await fetchSubitems(subitemsIdsStr): [];
 
-    const personsStr = item.column_values.find(({ title }) => title == 'Persons')?.value;
-    const personsIdsArr: Tags = personsStr ? JSON.parse(personsStr): { tag_ids: [] };
-    const personsIdsStr = personsIdsArr.tag_ids.join(` `);
-    const person = personsIdsStr ? await fetchSubitems(personsIdsStr): [];
-
     const intermediaryItem: IntermediateItem = {
-      ...itemToIntermediate(item),
+      ...(await itemToIntermediate(item)),
       subitems
     };
 

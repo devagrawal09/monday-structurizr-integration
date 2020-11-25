@@ -8,7 +8,7 @@ export interface IntermediateBoard {
     items?: IntermediateItem[]
   }>
 
-  users?: Array<User>
+  users?: Array<Person>
 }
 
 export interface ItemDetails {
@@ -16,13 +16,15 @@ export interface ItemDetails {
   name: string
   description?: string
   stack?: string
-  uses: number[]
+  uses?: number[]
+  persons?: Person[]
 }
 
 export interface IntermediateItem extends ItemDetails {
   subitems?: Array<ItemDetails>
 }
 
-export interface User {
-
+export interface Person {
+  id: string
+  name: string
 }

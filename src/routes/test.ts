@@ -7,6 +7,7 @@ import { Board } from '../interfaces/board';
 import { boardToIntermediate } from '../transformers/board-to-intermediate';
 import { mondayToStructurizr } from '../transformers/monday-to-structurizr';
 import { pushWorkspace } from '../structurizr/pushWorkspace';
+import { generateStyles } from '../structurizr/styles';
 
 export const testRouter = Router();
 
@@ -52,6 +53,7 @@ testRouter.post('/moday/testaction', async (req, res) => {
     await util.promisify(fs.writeFile)('board.json', JSON.stringify({ board, intermediate }, null, 2));
 
     const workspace = mondayToStructurizr(intermediate);
+    generateStyles(workspace);
     await pushWorkspace(workspace);
 
     console.log(`Done`);
