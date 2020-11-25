@@ -11,18 +11,16 @@ export interface IntermediateBoard {
   users?: Array<User>
 }
 
-export interface IntermediateItem {
+export interface ItemDetails {
   id: string
   name: string
   description?: string
   stack?: string
-
   uses: number[]
+}
 
-  subitems?: Array<{
-    id: string
-    name: string
-  }>
+export interface IntermediateItem extends ItemDetails {
+  subitems?: Array<ItemDetails>
 }
 
 export interface User {

@@ -16,9 +16,28 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
     const items = group.items?.map(item => {
       const container = system.addContainer(item.name, `${item.description}`, `${item.stack}`)!;
 
-      item.subitems?.forEach(subitem => {
-        const component = container.addComponent(subitem.name, `sample desc`)!;
-      });
+      if(item.subitems?.length) {
+        const subitems = item.subitems.map(subitem => {
+          const component = container.addComponent(subitem.name, `${subitem.description}`, `${subitem.stack}`)!;
+          return { subitem, component };
+        });
+
+        subitems.forEach(({ subitem, component }) => {
+          subitem.uses.forEach(linkedItem => {
+            const linked = subitems.find(({ subitem: { id } }) => id === `${linkedItem}`);
+            linked && component.uses(linked.component, 'Uses');
+          });
+        });
+
+        const view = workspace.views.createComponentView(
+          container,
+          `${container.name}-components`,
+          `The component view from ${container.name}`
+        );
+
+        view.addAllComponents();
+        view.setAutomaticLayout(true);
+      }
 
       return { item, container };
     });
