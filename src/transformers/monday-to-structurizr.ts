@@ -18,15 +18,9 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
 
   board.groups?.forEach(group => {
     if (group.title !== "Systems" && group.title !== "Persons") {
-      const { system } = systems.find(({ system }) => system.name === group.title)!;
+      const { system, item } = systems.find(({ system }) => system.name === group.title)!;
 
-      workspace.views.createSystemContextView(
-        system,
-        `${group.title}-context`,
-        'The system context view'
-      );
-
-      const view = workspace.views.createContainerView(
+      const containerView = workspace.views.createContainerView(
         system,
         `${group.title}-containers`,
         'Container view'
@@ -43,7 +37,7 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
           const role = persons.find(role => role.name == person.name);
           if (role) {
             role.uses(container, `Uses`);
-            view.addPerson(role);
+            containerView.addPerson(role);
           }
         });
 
@@ -71,14 +65,14 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
 
             return { subitem, component };
           });
-  
+
           subitems.forEach(({ subitem, component }) => {
             subitem.uses?.forEach(linkedItem => {
               const linked = subitems.find(({ subitem: { id } }) => id === `${linkedItem}`);
               linked && component.uses(linked.component, 'Uses');
             });
           });
-  
+
           view.addAllComponents();
           view.setAutomaticLayout(true);
         }
@@ -88,25 +82,50 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
 
       items?.forEach(({ item, container }) => {
         item.uses?.forEach(linkedItem => {
+          // each dependency can either be another container in the same system, or another system
           const linked = items.find(({ item: { id } }) => id === `${linkedItem}`);
           if(linked) {
+            // the dependency is another container in the same system
             container.uses(linked.container, 'Uses');
           } else {
             const linkedSystem = systems.find(({ item: { id } }) => id === `${linkedItem}`);
             if(linkedSystem) {
+              // the dependency is another system
               container.uses(linkedSystem.system, 'Uses');
-              view.addNearestNeighbours(linkedSystem.system);
+              containerView.addNearestNeighbours(linkedSystem.system);
             }
           }
         });
       });
 
+      const systemView = workspace.views.createSystemContextView(
+        system,
+        `${group.title}-context`,
+        'The system context view'
+      );
+
       // define system to system relationships
+      item.uses?.forEach(linkedItem => {
+        // each dependency is another system
+        const linked = systems.find(({ item: { id } }) => id === `${linkedItem}`);
+        if(linked) {
+          // the dependency is another container in the same system
+          system.uses(linked.system, 'Uses');
+          systemView.addNearestNeighbours(linked.system);
+        }
+      });
 
-      // add system to system relationships to view
+      // define system to person relationships
+      item.persons?.forEach(person => {
+        const role = persons.find(role => role.name == person.name);
+        if (role) {
+          role.uses(system, `Uses`);
+          systemView.addPerson(role);
+        }
+      });
 
-      view.addAllContainers();
-      view.setAutomaticLayout(true);
+      containerView.addAllContainers();
+      containerView.setAutomaticLayout(true);
     }
   });
 

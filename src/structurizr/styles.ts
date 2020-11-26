@@ -1,4 +1,4 @@
-import { Person, Workspace, ElementStyle, Tags, Shape, RelationshipStyle } from "structurizr-typescript";
+import { Workspace, ElementStyle, Tags, Shape } from "structurizr-typescript";
 
 export const generateStyles = (workspace: Workspace) => {
   const styles = workspace.views.configuration.styles;
@@ -27,7 +27,7 @@ export const generateStyles = (workspace: Workspace) => {
   softwaresystemStyle.background = "#438dd5";
   styles.addElementStyle(softwaresystemStyle);
 
-  const relationshipStyle = new RelationshipStyle(Tags.Relationship);
-  relationshipStyle.color = "#ff0000";
-  styles.addRelationshipStyle(relationshipStyle);
+  // const relationshipStyle = new RelationshipStyle(Tags.Relationship);
+  // relationshipStyle.color = "#ff0000";
+  // styles.addRelationshipStyle(relationshipStyle);
 };
