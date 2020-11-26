@@ -26,4 +26,8 @@ export const generateStyles = (workspace: Workspace) => {
   softwaresystemStyle.color = "#ffffff";
   softwaresystemStyle.background = "#438dd5";
   styles.addElementStyle(softwaresystemStyle);
+
+  const relationshipStyle = new RelationshipStyle(Tags.Relationship);
+  relationshipStyle.color = "#ff0000";
+  styles.addRelationshipStyle(relationshipStyle);
 };
