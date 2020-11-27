@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "npm run stop && concurrently \"nodemon\" \"npm run expose\"",
-    "server": "npm run compile && node ./dist/app.js",
+    "start:dev": "npm run compile && node ./dist/app.js",
+    "start:prod": "node ./dist/app.js",
     "expose": "ngrok http 8302",
     "stop": "kill-port 8302 && kill-port 404 9 && kill-port 4040",
     "compile": "tsc"
@@ -14,7 +15,7 @@
       ".env",
       "src/"
     ],
-    "exec": "npm run server",
+    "exec": "npm run start:dev",
     "ext": "ts"
   },
   "dependencies": {
