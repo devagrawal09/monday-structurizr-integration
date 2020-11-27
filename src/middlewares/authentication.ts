@@ -1,23 +1,21 @@
-const jwt = require('jsonwebtoken');
-const SHARED_SECRET = process.env.MONDAY_SIGNING_SECRET;
+import { verify } from 'jsonwebtoken';
 
-async function authenticationMiddleware(req, res, next) {
+export async function authenticationMiddleware(req: any, res: any, next: any) {
   try {
     let { authorization } = req.headers;
     if (!authorization && req.query) {
       authorization = req.query.token;
     }
-    const { accountId, userId, backToUrl } = jwt.verify(
+    const { accountId, userId, backToUrl } = verify(
       authorization,
-      process.env.MONDAY_SIGNING_SECRET
-    );
+      process.env.MONDAY_SIGNING_SECRET!
+    ) as any;
+
+    console.log({ accountId, userId, backToUrl });
+
     req.session = { accountId, userId, backToUrl };
     next();
   } catch (err) {
     res.status(500).json({ error: 'not authenticated' });
   }
-}
-
-module.exports = {
-  authenticationMiddleware
 };

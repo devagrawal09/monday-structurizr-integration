@@ -126,6 +126,8 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
 
       containerView.addAllContainers();
       containerView.setAutomaticLayout(true);
+
+      systemView.setAutomaticLayout(true);
     }
   });
 

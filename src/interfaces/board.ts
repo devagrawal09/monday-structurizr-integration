@@ -12,7 +12,7 @@ export interface Group {
 export interface Item {
   id: string
   name: string
-  group: { id: string }
+  group: { id: string, title?: string }
   column_values: Column[]
 }
 

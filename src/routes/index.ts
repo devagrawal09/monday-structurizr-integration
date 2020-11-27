@@ -4,8 +4,8 @@ import { authRouter } from './auth';
 
 export const routes = Router();
 
-routes.use(testRouter);
 routes.use(authRouter);
+routes.use('/monday', testRouter);
 
 routes.get('/', function(req, res) {
   res.json(getHealth());

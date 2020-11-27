@@ -7,7 +7,7 @@ const fetchPersons = async (ids: string): Promise<Array<Person>> => {
     url: `https://api.monday.com/v2`,
     method: `POST`,
     headers: {
-      Authorization: process.env.API_TOKEN
+      Authorization: process.env.MONDAY_API_TOKEN
     },
     data: {
       query: `
@@ -29,7 +29,7 @@ const fetchSubitems = async (ids: string): Promise<ItemDetails[]> => {
     url: `https://api.monday.com/v2`,
     method: `POST`,
     headers: {
-      Authorization: process.env.API_TOKEN
+      Authorization: process.env.MONDAY_API_TOKEN
     },
     data: {
       query: `
