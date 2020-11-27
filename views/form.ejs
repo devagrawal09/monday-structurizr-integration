@@ -1,0 +1,35 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <form id="structurizr-token" action="/auth/structurizr" method="get">
+      <h3>Token Form</h3>
+      <h4>Enter Your Details below</h4>
+      <input type="hidden" name="token" value="<%= token %>">
+      <input type="hidden" name="mondayToken" value="<%= mondayToken %>">
+      <fieldset>
+        <input style="border-radius: 4px;" name="structurizrId" placeholder="Structurizr Workspace Id" type="text" tabindex="1" required
+          autofocus>
+      </fieldset>
+      <fieldset>
+        <input style="border-radius: 4px;" name="structurizrKey" placeholder="Structurizr API Key" type="text" tabindex="2" required>
+      </fieldset>
+      <fieldset>
+        <input style="border-radius: 4px;" name="structurizrSecret" placeholder="Structurizr API Secret" type="password" tabindex="3" required>
+      </fieldset>
+      <fieldset>
+        <button style="border-radius: 4px;" type="submit" id="contact-submit"
+          data-submit="...Sending">Submit</button>
+      </fieldset>
+      <p class="madewithlove">Made with <span style="color: #ff0000">&#10084;</span> <a
+          href="https://github.com/devagrawal09/monday-structurizr-integration" target="_blank" title="Dev & Anmol">Dev
+          & Anmol</a></p>
+    </form>
+  </div>
+</body>
+
+</html>

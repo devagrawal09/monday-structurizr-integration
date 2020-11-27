@@ -1,3 +1,5 @@
+import { Shape } from "structurizr-typescript";
+
 export interface IntermediateBoard {
   description: string
 
@@ -18,6 +20,8 @@ export interface ItemDetails {
   stack?: string
   uses?: number[]
   persons?: Person[]
+  color?: string
+  shape?: Shape
 }
 
 export interface IntermediateItem extends ItemDetails {

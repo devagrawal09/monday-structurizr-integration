@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as qs from 'querystring';
 import * as jwt from 'jsonwebtoken';
-import { getToken, setToken } from '../database/integration';
+import { findIntegration, createIntegration } from '../database/integration';
 
 const Monday = require('monday-sdk-js');
 
@@ -13,7 +13,7 @@ authRouter.get('/auth', async (req, res) => {
   const { token } = req.query;
   const { userId, backToUrl } = jwt.verify(token as string, process.env.MONDAY_SIGNING_SECRET!) as any;
 
-  const integration = await getToken(userId);
+  const integration = await findIntegration(userId);
 
   if(integration) {
     return res.redirect(backToUrl);
@@ -28,21 +28,38 @@ authRouter.get('/auth', async (req, res) => {
 });
 
 authRouter.get('/oauth/callback', async (req, res) => {
-  const { code, state } = req.query;
-  const { userId, backToUrl } = jwt.verify(state as string, process.env.MONDAY_SIGNING_SECRET!) as any;
+  const { code, state: token } = req.query;
 
-  // Get access token
-  const token = await monday.oauthToken(code, process.env.MONDAY_CLIENT_ID, process.env.MONDAY_CLIENT_SECRET)
+  const { access_token } = await monday.oauthToken(code, process.env.MONDAY_CLIENT_ID, process.env.MONDAY_CLIENT_SECRET)
 
-  // const integration = await setToken(userId, token.access_token);
+  return res.redirect(`/auth/form?${
+    qs.stringify({ token, mondayToken: access_token })
+  }`);
+});
 
-  // TODO - Store the token in a secure way in a way you'll can later on find it using the user ID. 
-  // For example: await tokenStoreService.storeToken(userId, token);
-
-  // Redirect back to monday
-  return res.redirect('/auth/structurizr');
+authRouter.get('/auth/form', (req, res) => {
+  const { token, mondayToken } = req.query;
+  res.render('form', { token, mondayToken });
 });
 
 authRouter.get('/auth/structurizr', async (req, res) => {
-  res.json({nice: 69});
+  const {
+    token,
+    mondayToken,
+    structurizrId,
+    structurizrKey,
+    structurizrSecret
+  }: any = req.query;
+
+  const { userId, backToUrl } = jwt.verify(token as string, process.env.MONDAY_SIGNING_SECRET!) as any;
+
+  await createIntegration({
+    userId,
+    mondayToken,
+    structurizrId,
+    structurizrKey,
+    structurizrSecret
+  });
+
+  return res.redirect(backToUrl);
 });

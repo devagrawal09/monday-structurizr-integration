@@ -32,9 +32,7 @@ form {
 }
 
 #structurizr-token input[type="text"],
-#structurizr-token input[type="email"],
-#structurizr-token input[type="tel"],
-#structurizr-token input[type="url"],
+#structurizr-token input[type="password"],
 #structurizr-token textarea,
 #structurizr-token button[type="submit"] {
   font: 400 12px/16px "Roboto", Helvetica, Arial, sans-serif;
@@ -70,9 +68,7 @@ fieldset {
 }
 
 #structurizr-token input[type="text"],
-#structurizr-token input[type="email"],
-#structurizr-token input[type="tel"],
-#structurizr-token input[type="url"],
+#structurizr-token input[type="password"],
 #structurizr-token textarea {
   width: 100%;
   border: 1px solid #ccc;
@@ -82,9 +78,7 @@ fieldset {
 }
 
 #structurizr-token input[type="text"]:hover,
-#structurizr-token input[type="email"]:hover,
-#structurizr-token input[type="tel"]:hover,
-#structurizr-token input[type="url"]:hover,
+#structurizr-token input[type="password"]:hover,
 #structurizr-token textarea:hover {
   -webkit-transition: border-color 0.3s ease-in-out;
   -moz-transition: border-color 0.3s ease-in-out;

@@ -1,7 +1,10 @@
+import { Shape } from "structurizr-typescript";
+
 export interface Board {
   description: string
   groups: Group[]
   items: Item[]
+  columns: Column[]
 }
 
 export interface Group {
@@ -19,7 +22,8 @@ export interface Item {
 export interface Column {
   id: string
   value: string
-  title: "Description" | "Stack" | "Uses" | "Components" | "Persons"
+  title: "Description" | "Stack" | "Uses" | "Components" | "Persons" | "Element Color" | "Element Shape"
+  settings_str?: string
 }
 
 export interface LinkedPulses {
@@ -28,4 +32,12 @@ export interface LinkedPulses {
 
 export interface Tags {
   tag_ids: Array<number>
+}
+
+export interface Color {
+  color: { hex: string }
+}
+
+export interface ShapeDropdown {
+  labels: Array<{ id: number, name: Shape }>
 }

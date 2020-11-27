@@ -1,13 +1,14 @@
 import axios from 'axios';
-import { Board, LinkedPulses, Item, Tags } from "../interfaces/board";
+import { IntegrationModel } from '../database/integration';
+import { Board, LinkedPulses, Item, Tags, Color, ShapeDropdown } from "../interfaces/board";
 import { IntermediateBoard, IntermediateItem, ItemDetails, Person } from "../interfaces/intermediate";
 
-const fetchPersons = async (ids: string): Promise<Array<Person>> => {
+const fetchPersons = async (ids: string, integration: IntegrationModel): Promise<Array<Person>> => {
   const response = await axios({
     url: `https://api.monday.com/v2`,
     method: `POST`,
     headers: {
-      Authorization: process.env.MONDAY_API_TOKEN
+      Authorization: integration.mondayToken
     },
     data: {
       query: `
@@ -24,12 +25,12 @@ const fetchPersons = async (ids: string): Promise<Array<Person>> => {
   return response.data?.data?.tags;
 }
 
-const fetchSubitems = async (ids: string): Promise<ItemDetails[]> => {
+const fetchSubitems = async (ids: string, integration: IntegrationModel, shapeDropdown: ShapeDropdown): Promise<ItemDetails[]> => {
   const response = await axios({
     url: `https://api.monday.com/v2`,
     method: `POST`,
     headers: {
-      Authorization: process.env.MONDAY_API_TOKEN
+      Authorization: integration.mondayToken
     },
     data: {
       query: `
@@ -51,17 +52,25 @@ const fetchSubitems = async (ids: string): Promise<ItemDetails[]> => {
 
   const items: Item[] = response.data?.data?.items;
 
-  return Promise.all(items.map(itemToIntermediate));
+  return Promise.all(items.map(itemToIntermediate(integration, shapeDropdown)));
 }
 
-const itemToIntermediate = async (item: Item): Promise<ItemDetails> => {
+const itemToIntermediate = (integration: IntegrationModel, shapeDropdown: ShapeDropdown) => async (item: Item): Promise<ItemDetails> => {
   const usesStr = item.column_values.find(({ title }) => title == 'Uses')?.value;
   const uses: LinkedPulses = usesStr ? JSON.parse(usesStr): { linkedPulseIds: [] };
 
   const personsStr = item.column_values.find(({ title }) => title == 'Persons')?.value;
   const personsIdsArr: Tags = personsStr ? JSON.parse(personsStr): { tag_ids: [] };
   const personsIdsStr = personsIdsArr.tag_ids.join(` `);
-  const persons = personsIdsStr ? await fetchPersons(personsIdsStr): [];
+  const persons = personsIdsStr ? await fetchPersons(personsIdsStr, integration): [];
+
+  const colorStr = item.column_values.find(({ title }) => title == 'Element Color')?.value;
+  const color: Color = colorStr? JSON.parse(colorStr): {};
+
+  const shapeStr = item.column_values.find(({ title }) => title == 'Element Shape')?.value;
+  const shapeObj: { ids: number[] } = shapeStr? JSON.parse(shapeStr): { ids: [] };
+  const shapeId = shapeObj.ids[0];
+  const shape = shapeDropdown?.labels.find(({ id }) => id == shapeId);
 
   return {
     id: item.id,
@@ -69,15 +78,20 @@ const itemToIntermediate = async (item: Item): Promise<ItemDetails> => {
     description: item.column_values.find(({ title }) => title == 'Description')?.value || undefined,
     stack: item.column_values.find(({ title }) => title == 'Stack')?.value || undefined,
     uses: uses.linkedPulseIds?.map(lp => lp.linkedPulseId) || [],
-    persons
+    persons,
+    color: color.color?.hex,
+    shape: shape?.name
   }
 }
 
-export const boardToIntermediate = async (board: Board) => {
+export const boardToIntermediate = async (board: Board, integration: IntegrationModel) => {
   const intermediaryBoard: IntermediateBoard = {
     description: board.description,
     groups: board.groups
   };
+
+  const shapeSettings = board.columns.find(({ title }) => title === 'Element Shape');
+  const shapeDropdown: ShapeDropdown = shapeSettings && JSON.parse(shapeSettings.settings_str!);
   
   const jobs = board.items.map(async item => {
     const group = intermediaryBoard.groups.find(group => group.id === item.group.id);
@@ -87,10 +101,10 @@ export const boardToIntermediate = async (board: Board) => {
     const subitemsStr = item.column_values.find(({ title }) => title == 'Components')?.value;
     const subitemsIdsArr: LinkedPulses = subitemsStr ? JSON.parse(subitemsStr): { linkedPulseIds: [] };
     const subitemsIdsStr = subitemsIdsArr.linkedPulseIds.map(item => item.linkedPulseId).join(` `);
-    const subitems = subitemsIdsStr ? await fetchSubitems(subitemsIdsStr): [];
+    const subitems = subitemsIdsStr ? await fetchSubitems(subitemsIdsStr, integration, shapeDropdown): [];
 
     const intermediaryItem: IntermediateItem = {
-      ...(await itemToIntermediate(item)),
+      ...(await itemToIntermediate(integration, shapeDropdown)(item)),
       subitems
     };
 

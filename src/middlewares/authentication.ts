@@ -1,4 +1,5 @@
 import { verify } from 'jsonwebtoken';
+import { findIntegration } from '../database/integration';
 
 export async function authenticationMiddleware(req: any, res: any, next: any) {
   try {
@@ -6,16 +7,19 @@ export async function authenticationMiddleware(req: any, res: any, next: any) {
     if (!authorization && req.query) {
       authorization = req.query.token;
     }
-    const { accountId, userId, backToUrl } = verify(
+    const { userId } = verify(
       authorization,
       process.env.MONDAY_SIGNING_SECRET!
     ) as any;
 
-    console.log({ accountId, userId, backToUrl });
+    const integration = await findIntegration(userId);
+    if(!integration) {
+      throw new Error(`Unauthorized`);
+    }
 
-    req.session = { accountId, userId, backToUrl };
+    req.session = { integration };
     next();
   } catch (err) {
-    res.status(500).json({ error: 'not authenticated' });
+    res.status(401).json({ error: err.message || `not authenticated` });
   }
 };

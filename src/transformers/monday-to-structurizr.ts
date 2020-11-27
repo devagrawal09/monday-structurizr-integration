@@ -77,6 +77,10 @@ export const mondayToStructurizr = (board: IntermediateBoard): Workspace => {
           view.setAutomaticLayout(true);
         }
 
+        if(item.shape || item.color) {
+          // not yet supported by structurizr-typescript
+        }
+
         return { item, container };
       });
 
