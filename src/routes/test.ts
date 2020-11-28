@@ -76,9 +76,11 @@ testRouter.post('/testaction', async (req: any, res) => {
 
 testRouter.post('/system', async (req: any, res) => {
   try {
-    console.log('/monday/system');
+    console.log('POST /monday/system hit');
     const { payload } = req.body;
     const { boardId, itemId } = payload.inputFields;
+
+    console.log({ boardId, itemId });
 
     const integration: IntegrationModel = req.session.integration;
 
@@ -103,9 +105,13 @@ testRouter.post('/system', async (req: any, res) => {
         `
       }
     });
+
     const item: Item = response.data.data.items[0];
+
     if(item?.group.title === `Systems`) {
-      await axios({
+      console.log('New system detected, creating item group');
+
+      const response = await axios({
         url: `https://api.monday.com/v2`,
         method: `POST`,
         headers: {
@@ -119,7 +125,13 @@ testRouter.post('/system', async (req: any, res) => {
           `
         }
       });
+
+      console.log(`Created new group with id ${response.data.data?.create_group?.id}`);
     }
+    console.log('POST /monday/system complete');
+  } catch(err) {
+    console.log('POST /monday/system error');
+    console.error(err);
   } finally {
     res.sendStatus(201);
   }

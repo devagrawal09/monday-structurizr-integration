@@ -20,4 +20,4 @@ app.use(routes);
 
 app.listen(port, () => console.log(`Quickstart app listening at http://localhost:${port}`))
 
-module.exports = app;
+export default app;
