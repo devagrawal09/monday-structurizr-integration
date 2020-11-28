@@ -17,11 +17,13 @@ testRouter.use(authenticationMiddleware);
 
 testRouter.post('/testaction', async (req: any, res) => {
   try {
-    console.log('/monday/testaction');
+    console.log('POST /monday/testaction hit');
     const { payload } = req.body;
     const boardId = payload.inputFields.boardId;
 
     const integration: IntegrationModel = req.session.integration;
+
+    console.log({ boardId });
 
     const response = await axios({
       url: `https://api.monday.com/v2`,
@@ -62,13 +64,20 @@ testRouter.post('/testaction', async (req: any, res) => {
     const { data: { boards: [ board ] } }: { data : { boards: Board[] } } = response.data;
     const intermediate = await boardToIntermediate(board, integration);
 
-    await util.promisify(fs.writeFile)('board.json', JSON.stringify({ board, intermediate }, null, 2));
+    console.log(`Created intermediate board object`);
 
     const workspace = mondayToStructurizr(intermediate);
+    console.log(`Created structurizr workspace object`);
+
     generateStyles(workspace);
+    console.log(`Generated default styles`);
+
     await pushWorkspace(workspace, integration);
 
-    console.log(`Done`);
+    console.log(`POST /monday/testaction done`);
+  } catch(err) {
+    console.log('POST /monday/testaction error');
+    console.error(err);
   } finally {
     res.sendStatus(201);
   }
