@@ -1,7 +1,6 @@
-import * as util from 'util';
-import * as fs from 'fs';
 import { Router } from 'express';
 import axios from 'axios';
+import debug from 'debug';
 
 import { authenticationMiddleware } from '../middlewares/authentication';
 import { Board, Item } from '../interfaces/board';
@@ -11,19 +10,21 @@ import { pushWorkspace } from '../structurizr/pushWorkspace';
 import { generateStyles } from '../structurizr/styles';
 import { IntegrationModel } from '../database/integration';
 
-export const testRouter = Router();
+const logger = debug(`monday-router`);
 
-testRouter.use(authenticationMiddleware);
+export const mondayRouter = Router();
 
-testRouter.post('/testaction', async (req: any, res) => {
+mondayRouter.use(authenticationMiddleware);
+
+mondayRouter.post('/testaction', async (req: any, res) => {
   try {
-    console.log('POST /monday/testaction hit');
+    logger('POST /monday/testaction hit');
     const { payload } = req.body;
     const boardId = payload.inputFields.boardId;
 
     const integration: IntegrationModel = req.session.integration;
 
-    console.log({ boardId });
+    logger({ boardId });
 
     const response = await axios({
       url: `https://api.monday.com/v2`,
@@ -64,32 +65,32 @@ testRouter.post('/testaction', async (req: any, res) => {
     const { data: { boards: [ board ] } }: { data : { boards: Board[] } } = response.data;
     const intermediate = await boardToIntermediate(board, integration);
 
-    console.log(`Created intermediate board object`);
+    logger(`Created intermediate board object`);
 
     const workspace = mondayToStructurizr(intermediate);
-    console.log(`Created structurizr workspace object`);
+    logger(`Created structurizr workspace object`);
 
     generateStyles(workspace);
-    console.log(`Generated default styles`);
+    logger(`Generated default styles`);
 
     await pushWorkspace(workspace, integration);
 
-    console.log(`POST /monday/testaction done`);
+    logger(`POST /monday/testaction done`);
   } catch(err) {
-    console.log('POST /monday/testaction error');
+    logger('POST /monday/testaction error');
     console.error(err);
   } finally {
     res.sendStatus(201);
   }
 });
 
-testRouter.post('/system', async (req: any, res) => {
+mondayRouter.post('/system', async (req: any, res) => {
   try {
-    console.log('POST /monday/system hit');
+    logger('POST /monday/system hit');
     const { payload } = req.body;
     const { boardId, itemId } = payload.inputFields;
 
-    console.log({ boardId, itemId });
+    logger({ boardId, itemId });
 
     const integration: IntegrationModel = req.session.integration;
 
@@ -118,7 +119,7 @@ testRouter.post('/system', async (req: any, res) => {
     const item: Item = response.data.data.items[0];
 
     if(item?.group.title === `Systems`) {
-      console.log('New system detected, creating item group');
+      logger('New system detected, creating item group');
 
       const response = await axios({
         url: `https://api.monday.com/v2`,
@@ -135,11 +136,11 @@ testRouter.post('/system', async (req: any, res) => {
         }
       });
 
-      console.log(`Created new group with id ${response.data.data?.create_group?.id}`);
+      logger(`Created new group with id ${response.data.data?.create_group?.id}`);
     }
-    console.log('POST /monday/system complete');
+    logger('POST /monday/system complete');
   } catch(err) {
-    console.log('POST /monday/system error');
+    logger('POST /monday/system error');
     console.error(err);
   } finally {
     res.sendStatus(201);

@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { testRouter } from './test';
+import { mondayRouter } from './monday';
 import { authRouter } from './auth';
 
 export const routes = Router();
 
 routes.use(authRouter);
-routes.use('/monday', testRouter);
+routes.use('/monday', mondayRouter);
 
 routes.get('/', function(req, res) {
   res.json(getHealth());
